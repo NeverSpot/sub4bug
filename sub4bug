@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# defining sufix
+sfsub="_subfinder"
+httpxwordking="_working"
+final="_final"
+asset="_assetfinder"
+sorted="_sorted"
+hak="_haktrails"
+
+#taking input
+if [[ ! -n $1 ]];
+then 
+    echo "No parameter passed."
+else
+    echo "Domain = $1"
+domain=$1
+
+#making dir with name of domain
+mkdir ~/bug/$domain
+
+# running subfinder
+subfinder -d $domain -t 100 > ~/bug/$domain/$domain$sfsub &
+subfinder_pid=$!
+wait $subfinder_pid
+
+# running haktrails
+echo $domain | haktrails subdomains -t 100 > ~/bug/$domain/$domain$hak &
+haktrails_pid=$!
+wait $haktrails_pid
+
+# running asset_finder 
+assetfidner $domain > ~/bug/$domain/$domain$asset &
+assetfidner_pid=$!
+wait $assetfidner_pid
+
+# merging all sub file to final file using cat
+cat ~/bug/$domain/$domain$sfsub ~/bug/$domain/$domain$asset ~/bug/$domain/$domain$hak > ~/bug/$domain/$domain$final &
+cat_pid=$!
+wait $cat_pid
+
+#removing duplicate subdomain
+sort -u ~/bug/$domain/$domain$final > ~/bug/$domain/$domain$final$sorted &
+sort_pid=$!
+wait $sort_pid
+
+# finding working file
+httpx-pd -l ~/bug/$domain/$domain$final$sorted -o ~/bug/$domain/final  -threads 200 -status-code -follow-redirects &
+httpx_pid=$!
+wait $httpx_pid
+
+fi
