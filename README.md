@@ -1,5 +1,5 @@
 # sub4bug
-This is automation tool which utilize 3 sub -domain finder and then sort out working sub-domain
+This is an automation tool that utilizes 3 subdomain finders and then sorts out working sub-domain
 
 Subdomain Finder and Filter Script
 
@@ -16,9 +16,19 @@ Usage
 
 To use the script, simply run it with the domain name as a parameter, like this:
 
-bash
+## INSTALLATION: 
+```
+git clone https://github.com/NeverSpot/sub4bug.git
+mkdir ~/bug
+cd sub4bug
+chmod +x sub4bug
+```
 
+## EXECUTION:
+```
 ./sub4bug example.com
+```
+
 
 The script will output the discovered subdomains and the ones that are currently working, in separate files.
 Dependencies
