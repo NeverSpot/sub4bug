@@ -4,54 +4,41 @@
 domain=$1
 bug_dir=~/bug/$domain
 subfinder_subfix=_subfinder
-haktrails_subfix=_haktrails
 assetfinder_sufix=_assetfinder
 subfinder_file="$bug_dir/$domain$subfinder_subfix"
-haktrails_file="$bug_dir/$domain$haktrails_subfix"
 assetfinder_file="$bug_dir/$domain$assetfinder_sufix"
 final_file="$bug_dir/"$domain"_final"
 sorted_file="$bug_dir/"$domain"_final_sorted"
 working_file="$bug_dir/final"
+takeover_output="$bug_dir/takeover.txt"
 
 # Define functions
 function run_subfinder {
-    subfinder -d $domain -t 100 > $subfinder_file &
-    subfinder_pid=$!
-    wait $subfinder_pid
-}
-
-function run_haktrails {
-    echo $domain | haktrails subdomains -t 100 > $haktrails_file &
-    haktrails_pid=$!
-    wait $haktrails_pid
+    subfinder -d $domain -t 100 > $subfinder_file
 }
 
 function run_assetfinder {
-    assetfinder $domain > $assetfinder_file &
-    assetfinder_pid=$!
-    wait $assetfinder_pid
+    assetfinder $domain > $assetfinder_file
 }
 
 function merge_subdomains {
-    cat $subfinder_file $assetfinder_file $haktrails_file > $final_file &
-    cat_pid=$!
-    wait $cat_pid
+    cat $subfinder_file $assetfinder_file  > $final_file
 }
 
 function filter_duplicates {
-    sort -u $final_file > $sorted_file &
-    sort_pid=$!
-    wait $sort_pid
+    sort -u $final_file > $sorted_file
 }
 
 function test_subdomains {
-    httpx-pd -l $sorted_file -o $working_file -threads 200 -status-code -follow-redirects &
-    httpx_pid=$!
-    wait $httpx_pid
+    recce -l -o $working_file < $sorted_file
 }
 
+function take_over {
+    takeover -l ~/bug/$domain/final -t 100 > $takeover_output
+    }
+
 # Check for input parameter
-if [[ ! -n $domain ]]; then 
+if [[ ! -n $domain ]]; then
     echo "No domain parameter passed."
     exit 1
 fi
@@ -59,16 +46,21 @@ fi
 # Create bug directory
 mkdir $bug_dir
 
-# Run tools in parallel
-run_subfinder &
-run_haktrails &
-run_assetfinder &
+# Run tools and pipe to xargs
+run_subfinder&
+run_assetfinder&
 wait
 
-# Merge, filter, and test subdomains
-merge_subdomains
-filter_duplicates
-test_subdomains
+# sorting then merging then filtering to make powerful sub-domains list
+merge_subdomains&
+filter_duplicates&
+wait
+
+# scaning for alive sub-domain and then scaing for sub-domain takeover
+test_subdomains&
+wait
+take_over&
+wait
 
 # Clean up intermediate files
-trap "rm -f $subfinder_file $haktrails_file $assetfinder_file $final_file $sorted_file" EXIT
+rm -f $subfinder_file $haktrails_file $assetfinder_file $final_file $sorted_file
