@@ -37,7 +37,7 @@ sub4bug kiit.ac.in
 ## OUTPUT:
 ```
 1.final -> cotain final list of active sub-domains
-2. takeover.txt -> output of subdomain takeover scan
+2.takeover.txt -> output of subdomain takeover scan
 ```
 
 The script requires the following tools to be installed and available in your system:
