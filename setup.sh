@@ -17,7 +17,7 @@ go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
 
 # install Recce
 git clone https://github.com/unstabl3/recce.git
-mv extra/install.sh recce/install.sh
+mv extra.sh recce/install.sh
 chmod +x recce/recce.py
 bash recce/install.sh
 
