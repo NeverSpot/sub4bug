@@ -14,8 +14,6 @@ go install github.com/mnomnom/assetfinder@latest
 # install sub-finder
 go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
 
-sex
-
 
 # install Recce
 git clone https://github.com/unstabl3/recce.git
